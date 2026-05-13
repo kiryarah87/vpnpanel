@@ -23,8 +23,8 @@ class Settings(BaseSettings):
 
     # Security
     SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    JWT_ALGORITHM: str
+    JWT_EXPIRE_MINUTES: int
 
     # Admin (первичный пользователь)
     ADMIN_USERNAME: str

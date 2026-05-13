@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
-from app.core.deps import ClientServiceDep, CurrentUser
+from app.core.deps import ClientServiceDep, get_current_user
 from app.schemas.client import ClientCreate, ClientReadDetail, ClientUpdate
 
 router = APIRouter(
     prefix="/clients",
     tags=["clients"],
-    dependencies=[Depends(CurrentUser)],
+    dependencies=[Depends(get_current_user)],
 )
 
 

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
-from app.core.deps import CurrentUser, DomainServiceDep
+from app.core.deps import DomainServiceDep, get_current_user
 from app.schemas.domain import DomainCreate, DomainRead, DomainUpdate
 
 router = APIRouter(
     prefix="/domains",
     tags=["domains"],
-    dependencies=[Depends(CurrentUser)],
+    dependencies=[Depends(get_current_user)],
 )
 
 
