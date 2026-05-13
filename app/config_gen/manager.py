@@ -11,7 +11,7 @@ from app.config_gen.xray import XrayConfigGenerator
 
 logger = logging.getLogger(__name__)
 
-CONFIGS_DIR = Path("configs")
+CONFIGS_DIR = Path("app/config_gen/configs")
 
 
 class ConfigManager:

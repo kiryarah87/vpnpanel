@@ -4,6 +4,7 @@ import yaml
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config_gen.base import BaseConfigGenerator
+from app.core.config import settings
 from app.models.enum import ProtocolType
 from app.repositories.client import ClientRepository
 from app.repositories.inbound import InboundRepository
@@ -29,8 +30,6 @@ class Hysteria2ConfigGenerator(BaseConfigGenerator):
             self.write("# No active Hysteria2 inbounds\n")
             return
 
-        # Hysteria2 слушает на первом инбаунде
-        # TODO: поддержка нескольких портов через multi-port
         inbound = hysteria_inbounds[0]
 
         auth_users = {
@@ -42,8 +41,8 @@ class Hysteria2ConfigGenerator(BaseConfigGenerator):
         config = {
             "listen": f":{inbound.port}",
             "tls": {
-                "cert": "/etc/hysteria2/server.crt",
-                "key": "/etc/hysteria2/server.key",
+                "cert": "/etc/hysteria2/certs/server.crt",
+                "key": "/etc/hysteria2/certs/server.key",
             },
             "auth": {
                 "type": "userpass",
@@ -52,7 +51,7 @@ class Hysteria2ConfigGenerator(BaseConfigGenerator):
             "masquerade": {
                 "type": "proxy",
                 "proxy": {
-                    "url": f"https://{inbound.sni}",
+                    "url": f"https://{settings.DOMAIN}",
                     "rewriteHost": True,
                 },
             },

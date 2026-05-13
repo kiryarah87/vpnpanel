@@ -3,6 +3,7 @@ from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config_gen.base import BaseConfigGenerator
+from app.core.config import settings
 from app.models.enum import ProtocolType
 from app.repositories.client import ClientRepository
 from app.repositories.inbound import InboundRepository
@@ -31,16 +32,15 @@ class CaddyConfigGenerator(BaseConfigGenerator):
         lines = []
 
         for inbound in naive_inbounds:
-            domain = inbound.domain.name if inbound.domain else "localhost"
-
-            # Формируем список пользователей
             users = " ".join(
                 f"{c.credential.naiveproxy_username}:{c.credential.naiveproxy_password}"
                 for c in active_clients
             )
 
-            lines.append(f":{inbound.port}, {domain}:{inbound.port} {{")
-            lines.append("  tls /etc/caddy/server.crt /etc/caddy/server.key")
+            lines.append(f"{settings.DOMAIN}:{inbound.port} {{")
+            lines.append("  tls {")
+            lines.append("    on_demand")
+            lines.append("  }")
             lines.append("  route {")
             lines.append("    forward_proxy {")
             lines.append(f"      basic_auth {users}")

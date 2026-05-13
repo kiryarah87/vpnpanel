@@ -5,11 +5,12 @@ from fastapi import FastAPI
 from app.api.v1 import router
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
-from app.core.init_db import create_admin_if_not_exists
+from app.utils.init_db import create_admin_if_not_exists, create_default_configs
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    create_default_configs()
     async with AsyncSessionLocal() as session:
         async with session.begin():
             await create_admin_if_not_exists(session)
