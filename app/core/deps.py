@@ -4,6 +4,7 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config_gen.manager import ConfigManager
 from app.core.database import get_session
 from app.core.exception import UnauthorizedError
 from app.repositories.base import BaseRepository
@@ -56,6 +57,14 @@ SubscriptionRepositoryDep = Annotated[
 ]
 
 
+# --- Config manager ---
+def get_config_manager(session: DbSession) -> ConfigManager:
+    return ConfigManager(session)
+
+
+ConfigManagerDep = Annotated[ConfigManager, Depends(get_config_manager)]
+
+
 # --- Service providers ---
 def get_auth_service(repo: UserRepositoryDep) -> AuthService:
     return AuthService(repo)
@@ -64,16 +73,20 @@ def get_auth_service(repo: UserRepositoryDep) -> AuthService:
 def get_client_service(
     repo: ClientRepositoryDep,
     credential_repo: CredentialRepositoryDep,
+    config_manager: ConfigManagerDep,
 ) -> ClientService:
-    return ClientService(repo, credential_repo)
+    return ClientService(repo, credential_repo, config_manager)
 
 
 def get_domain_service(repo: DomainRepositoryDep) -> DomainService:
     return DomainService(repo)
 
 
-def get_inbound_service(repo: InboundRepositoryDep) -> InboundService:
-    return InboundService(repo)
+def get_inbound_service(
+    repo: InboundRepositoryDep,
+    config_manager: ConfigManagerDep,
+) -> InboundService:
+    return InboundService(repo, config_manager)
 
 
 def get_subscription_service(
@@ -102,6 +115,3 @@ async def get_current_user(
     if not user or not user.is_active:
         raise UnauthorizedError()
     return user
-
-
-# CurrentUser = Annotated[UserRead, Depends(get_current_user)]

@@ -26,6 +26,10 @@ class Inbound(Base, TimestampMixin):
     sni: Mapped[str | None] = mapped_column(String(253), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    reality_private_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    reality_public_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    reality_short_id: Mapped[str | None] = mapped_column(String(16), nullable=True)
+
     domain_id: Mapped[int | None] = mapped_column(
         ForeignKey("domains.id", ondelete="SET NULL"), nullable=True
     )
