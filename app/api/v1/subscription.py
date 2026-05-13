@@ -8,23 +8,28 @@ from app.schemas.subscription import (
     SubscriptionUpdate,
 )
 
-router = APIRouter(prefix="/subscriptions", tags=["subscriptions"])
-protected = APIRouter(dependencies=[Depends(CurrentUser)])
+router = APIRouter(
+    prefix="/subscriptions",
+    tags=["subscriptions"],
+    dependencies=[Depends(CurrentUser)],
+)
+
+public_router = APIRouter(tags=["subscriptions"])
 
 
-@protected.get("/", response_model=list[SubscriptionRead])
+@router.get("/", response_model=list[SubscriptionRead])
 async def get_subscriptions(service: SubscriptionServiceDep) -> list[SubscriptionRead]:
     return await service.get_all()
 
 
-@protected.get("/{id}", response_model=SubscriptionReadDetail)
+@router.get("/{id}", response_model=SubscriptionReadDetail)
 async def get_subscription(
     id: int, service: SubscriptionServiceDep
 ) -> SubscriptionReadDetail:
     return await service.get_by_id(id)
 
 
-@protected.post(
+@router.post(
     "/", response_model=SubscriptionReadDetail, status_code=status.HTTP_201_CREATED
 )
 async def create_subscription(
@@ -34,7 +39,7 @@ async def create_subscription(
     return await service.create(data)
 
 
-@protected.patch("/{id}", response_model=SubscriptionReadDetail)
+@router.patch("/{id}", response_model=SubscriptionReadDetail)
 async def update_subscription(
     id: int,
     data: SubscriptionUpdate,
@@ -43,12 +48,12 @@ async def update_subscription(
     return await service.update(id, data)
 
 
-@protected.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_subscription(id: int, service: SubscriptionServiceDep) -> None:
     await service.delete(id)
 
 
-@router.get(
+@public_router.get(
     "/sub/{token}", response_model=SubscriptionReadDetail, include_in_schema=False
 )
 async def get_subscription_by_token(
@@ -56,6 +61,3 @@ async def get_subscription_by_token(
     service: SubscriptionServiceDep,
 ) -> SubscriptionReadDetail:
     return await service.get_by_token(token)
-
-
-router.include_router(protected)

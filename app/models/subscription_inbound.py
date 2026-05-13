@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .subscription import Subscription
-from .inbound import Inbound
+
+if TYPE_CHECKING:
+    from .inbound import Inbound
+    from .subscription import Subscription
 
 
 class SubscriptionInbound(Base):
@@ -20,7 +26,7 @@ class SubscriptionInbound(Base):
         ForeignKey("inbounds.id", ondelete="CASCADE"), nullable=False
     )
 
-    subscription: Mapped["Subscription"] = relationship(
+    subscription: Mapped[Subscription] = relationship(
         back_populates="subscription_inbounds"
     )
-    inbound: Mapped["Inbound"] = relationship(back_populates="subscription_inbounds")
+    inbound: Mapped[Inbound] = relationship(back_populates="subscription_inbounds")

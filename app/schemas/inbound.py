@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
-from app.models.inbound import PortType, ProtocolType
+from app.models.enum import PortType, ProtocolType
 
 
 class InboundCreate(BaseModel):
@@ -11,6 +11,12 @@ class InboundCreate(BaseModel):
     port_type: PortType = PortType.RANDOM
     sni: str | None = None
     domain_id: int | None = None
+
+    @model_validator(mode="after")
+    def validate_port(self):
+        if self.port_type == PortType.FIXED and self.port is None:
+            raise ValueError("port обязателен при port_type=FIXED")
+        return self
 
 
 class InboundUpdate(BaseModel):

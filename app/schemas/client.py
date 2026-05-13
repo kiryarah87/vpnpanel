@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
 
+from app.schemas.credential import ClientCredentialRead
+
 
 class ClientCreate(BaseModel):
     name: str
@@ -27,3 +29,7 @@ class ClientRead(BaseModel):
     used_traffic_bytes: int
     created_at: datetime
     updated_at: datetime
+
+
+class ClientReadDetail(ClientRead):
+    credential: ClientCredentialRead | None = None
