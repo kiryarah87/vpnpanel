@@ -1,11 +1,22 @@
-import uvicorn
+from fastapi import FastAPI
+
+from app.api.v1 import router
 from app.core.config import settings
 
 
-if __name__ == "__main__":
-    uvicorn.run(
-        "app.main:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        reload=settings.DEBUG,
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title=settings.APP_NAME,
+        debug=settings.DEBUG,
     )
+
+    app.include_router(router)
+
+    @app.get("/health", tags=["system"])
+    async def health_check():
+        return {"status": "ok"}
+
+    return app
+
+
+app = create_app()
