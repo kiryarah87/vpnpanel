@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin
@@ -18,6 +18,7 @@ class Subscription(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(128), nullable=False)
     token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)  # ← добавлено
 
     client_id: Mapped[int] = mapped_column(
         ForeignKey("clients.id", ondelete="CASCADE"), nullable=False

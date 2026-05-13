@@ -16,9 +16,15 @@ class SubscriptionRepository(BaseRepository[Subscription]):
         super().__init__(Subscription, session)
 
     async def get_by_token(self, token: str) -> Subscription | None:
-        """Получить подписку по токену"""
+        """Получить подписку по токену с инбаундами"""
         result = await self.session.execute(
-            select(Subscription).where(Subscription.token == token)
+            select(Subscription)
+            .where(Subscription.token == token)
+            .options(
+                selectinload(Subscription.subscription_inbounds).selectinload(
+                    SubscriptionInbound.inbound
+                )
+            )
         )
         return result.scalar_one_or_none()
 

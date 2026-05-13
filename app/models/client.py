@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base, TimestampMixin
 
 if TYPE_CHECKING:
+    from .credential import ClientCredential
     from .subscription import Subscription
 
 
@@ -23,4 +24,7 @@ class Client(Base, TimestampMixin):
 
     subscriptions: Mapped[list[Subscription]] = relationship(
         back_populates="client", cascade="all, delete-orphan"
+    )
+    credential: Mapped[ClientCredential] = relationship(
+        back_populates="client", cascade="all, delete-orphan", uselist=False
     )

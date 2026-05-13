@@ -8,6 +8,7 @@ from app.core.database import get_session
 from app.core.exception import UnauthorizedError
 from app.repositories.base import BaseRepository
 from app.repositories.client import ClientRepository
+from app.repositories.credential import ClientCredentialRepository
 from app.repositories.domain import DomainRepository
 from app.repositories.inbound import InboundRepository
 from app.repositories.subscription import SubscriptionRepository
@@ -36,18 +37,22 @@ def make_repo_dep(repo_class: Type[RepoType]) -> Callable[[DbSession], RepoType]
     return _get_repo
 
 
-UserRepositoryDep = Annotated[UserRepository, Depends(make_repo_dep(UserRepository))]
-ClientRepositoryDep = Annotated[
-    ClientRepository, Depends(make_repo_dep(ClientRepository))
+get_user_repository = make_repo_dep(UserRepository)
+get_client_repository = make_repo_dep(ClientRepository)
+get_credential_repository = make_repo_dep(ClientCredentialRepository)
+get_domain_repository = make_repo_dep(DomainRepository)
+get_inbound_repository = make_repo_dep(InboundRepository)
+get_subscription_repository = make_repo_dep(SubscriptionRepository)
+
+UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
+ClientRepositoryDep = Annotated[ClientRepository, Depends(get_client_repository)]
+CredentialRepositoryDep = Annotated[
+    ClientCredentialRepository, Depends(get_credential_repository)
 ]
-DomainRepositoryDep = Annotated[
-    DomainRepository, Depends(make_repo_dep(DomainRepository))
-]
-InboundRepositoryDep = Annotated[
-    InboundRepository, Depends(make_repo_dep(InboundRepository))
-]
+DomainRepositoryDep = Annotated[DomainRepository, Depends(get_domain_repository)]
+InboundRepositoryDep = Annotated[InboundRepository, Depends(get_inbound_repository)]
 SubscriptionRepositoryDep = Annotated[
-    SubscriptionRepository, Depends(make_repo_dep(SubscriptionRepository))
+    SubscriptionRepository, Depends(get_subscription_repository)
 ]
 
 
@@ -55,8 +60,11 @@ def get_auth_service(repo: UserRepositoryDep) -> AuthService:
     return AuthService(repo)
 
 
-def get_client_service(repo: ClientRepositoryDep) -> ClientService:
-    return ClientService(repo)
+def get_client_service(
+    repo: ClientRepositoryDep,
+    credential_repo: CredentialRepositoryDep,
+) -> ClientService:
+    return ClientService(repo, credential_repo)
 
 
 def get_domain_service(repo: DomainRepositoryDep) -> DomainService:
