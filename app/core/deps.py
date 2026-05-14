@@ -115,3 +115,6 @@ async def get_current_user(
     if not user or not user.is_active:
         raise UnauthorizedError()
     return user
+
+
+CurrentUserDep = Annotated[UserRead, Depends(get_current_user)]

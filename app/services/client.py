@@ -21,7 +21,7 @@ class ClientService:
         return [ClientReadDetail.model_validate(c) for c in clients]
 
     async def get_by_id(self, id: int) -> ClientReadDetail:
-        client = await self.repo.get_with_credentials(id)
+        client = await self.repo.get_with_credential(id)
 
         if not client:
             raise NotFoundError("Клиент не найден")
@@ -35,12 +35,12 @@ class ClientService:
             naiveproxy_username=data.name,
         )
 
-        client = await self.repo.get_with_credentials(client.id)
+        client = await self.repo.get_with_credential(client.id)
         await self.config_manager.regenerate_all()
         return ClientReadDetail.model_validate(client)
 
     async def update(self, id: int, data: ClientUpdate) -> ClientReadDetail:
-        client = await self.repo.get_with_credentials(id)
+        client = await self.repo.get_with_credential(id)
 
         if not client:
             raise NotFoundError("Клиент не найден")
