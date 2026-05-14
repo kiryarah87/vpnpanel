@@ -6,6 +6,6 @@ class TokenRead(BaseModel):
     token_type: str = "bearer"
 
 
-class LoginForm(BaseModel):
-    username: str
-    password: str
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

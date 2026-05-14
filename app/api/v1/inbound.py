@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, status
 
-from app.core.deps import CurrentUser, InboundServiceDep
+from app.core.deps import InboundServiceDep, get_current_user
 from app.schemas.inbound import InboundCreate, InboundRead, InboundUpdate
 
 router = APIRouter(
     prefix="/inbounds",
     tags=["inbounds"],
-    dependencies=[Depends(CurrentUser)],
+    dependencies=[Depends(get_current_user)],
 )
 
 

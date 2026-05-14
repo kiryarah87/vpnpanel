@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -23,10 +24,10 @@ class Settings(BaseSettings):
 
     # Security
     SECRET_KEY: str
-    ALGORITHM: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    JWT_ALGORITHM: str
+    JWT_EXPIRE_MINUTES: int
 
-    # Admin (первичный пользователь)
+    # Admin
     ADMIN_USERNAME: str
     ADMIN_PASSWORD: str
 
@@ -37,6 +38,9 @@ class Settings(BaseSettings):
     # Subscription
     SUBSCRIPTION_BASE_URL: str
     MAX_INBOUNDS_PER_SUBSCRIPTION: int
+
+    # Domain
+    DOMAIN: str
 
 
 @lru_cache

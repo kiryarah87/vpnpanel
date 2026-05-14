@@ -48,6 +48,17 @@ class SubscriptionRepository(BaseRepository[Subscription]):
         )
         return result.scalar_one_or_none()
 
+    async def get_all_with_inbounds(self) -> list[Subscription]:
+        """Получить все подписки с инбаундами"""
+        result = await self.session.execute(
+            select(Subscription).options(
+                selectinload(Subscription.subscription_inbounds).selectinload(
+                    SubscriptionInbound.inbound
+                )
+            )
+        )
+        return result.scalars().all()
+
     async def create_from_dict(self, data: dict) -> Subscription:
         """Создать подписку из словаря"""
         subscription = Subscription(

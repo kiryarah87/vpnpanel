@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, status
 
-from app.core.deps import CurrentUser, SubscriptionServiceDep
+from app.core.deps import SubscriptionServiceDep, get_current_user
 from app.schemas.subscription import (
     SubscriptionCreate,
-    SubscriptionRead,
     SubscriptionReadDetail,
     SubscriptionUpdate,
 )
@@ -11,14 +10,16 @@ from app.schemas.subscription import (
 router = APIRouter(
     prefix="/subscriptions",
     tags=["subscriptions"],
-    dependencies=[Depends(CurrentUser)],
+    dependencies=[Depends(get_current_user)],
 )
 
 public_router = APIRouter(tags=["subscriptions"])
 
 
-@router.get("/", response_model=list[SubscriptionRead])
-async def get_subscriptions(service: SubscriptionServiceDep) -> list[SubscriptionRead]:
+@router.get("/", response_model=list[SubscriptionReadDetail])
+async def get_subscriptions(
+    service: SubscriptionServiceDep,
+) -> list[SubscriptionReadDetail]:
     return await service.get_all()
 
 

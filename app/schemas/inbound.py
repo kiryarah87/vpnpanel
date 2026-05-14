@@ -4,6 +4,8 @@ from pydantic import BaseModel, model_validator
 
 from app.models.enum import PortType, ProtocolType
 
+REALITY_PROTOCOLS = {ProtocolType.VLESS_TCP_REALITY, ProtocolType.VLESS_XHTTP_REALITY}
+
 
 class InboundCreate(BaseModel):
     protocol: ProtocolType
@@ -13,9 +15,12 @@ class InboundCreate(BaseModel):
     domain_id: int | None = None
 
     @model_validator(mode="after")
-    def validate_port(self):
+    def validate_fields(self):
         if self.port_type == PortType.FIXED and self.port is None:
             raise ValueError("port обязателен при port_type=FIXED")
+
+        if self.protocol in REALITY_PROTOCOLS and not self.sni:
+            raise ValueError("sni обязателен для VLESS протоколов")
         return self
 
 
@@ -38,5 +43,7 @@ class InboundRead(BaseModel):
     sni: str | None
     is_active: bool
     domain_id: int | None
+    reality_public_key: str | None
+    reality_short_id: str | None
     created_at: datetime
     updated_at: datetime

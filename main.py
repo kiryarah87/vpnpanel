@@ -1,15 +1,17 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import router
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
-from app.core.init_db import create_admin_if_not_exists
+from app.utils.init_db import create_admin_if_not_exists, create_default_configs
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    create_default_configs()
     async with AsyncSessionLocal() as session:
         async with session.begin():
             await create_admin_if_not_exists(session)
@@ -24,6 +26,13 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(router)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     @app.get("/health", tags=["system"])
     async def health_check():

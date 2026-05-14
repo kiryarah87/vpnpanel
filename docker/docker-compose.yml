@@ -1,0 +1,56 @@
+services:
+  vpnpanel:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: vpnpanel
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../app/config_gen/configs:/app/app/config_gen/configs
+      - ../vpnpanel.db:/app/vpnpanel.db
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file: ../.env
+    depends_on:
+      - xray
+      - hysteria2
+      - caddy
+    networks:
+      - vpnpanel_network
+
+  xray:
+    build: ./xray
+    container_name: xray
+    restart: unless-stopped
+    volumes:
+      - ../app/config_gen/configs/xray:/etc/xray
+      - caddy_certs:/etc/xray/certs:ro
+    network_mode: host
+
+  hysteria2:
+    build: ./hysteria2
+    container_name: hysteria2
+    restart: unless-stopped
+    volumes:
+      - ../app/config_gen/configs/hysteria2:/etc/hysteria2
+      - caddy_certs:/etc/hysteria2/certs:ro
+    network_mode: host
+
+  caddy:
+    build: ./caddy
+    container_name: caddy
+    restart: unless-stopped
+    volumes:
+      - ../app/config_gen/configs/caddy:/etc/caddy
+      - caddy_certs:/certs
+    network_mode: host
+
+volumes:
+  caddy_certs:
+    name: caddy_certs
+
+networks:
+  vpnpanel_network:
+    name: vpnpanel_network
+    driver: bridge

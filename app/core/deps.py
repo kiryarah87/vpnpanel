@@ -4,6 +4,7 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config_gen.manager import ConfigManager
 from app.core.database import get_session
 from app.core.exception import UnauthorizedError
 from app.repositories.base import BaseRepository
@@ -30,32 +31,41 @@ DbSession = Annotated[AsyncSession, Depends(get_session)]
 def make_repo_dep(repo_class: Type[RepoType]) -> Callable[[DbSession], RepoType]:
     """Фабрика зависимостей для репозиториев"""
 
-    def _get_repo(session: DbSession) -> RepoType:
+    async def _get_repo(session: DbSession) -> RepoType:
         return repo_class(session)
 
     _get_repo.__name__ = f"get_{repo_class.__name__.lower()}"
     return _get_repo
 
 
-get_user_repository = make_repo_dep(UserRepository)
-get_client_repository = make_repo_dep(ClientRepository)
-get_credential_repository = make_repo_dep(ClientCredentialRepository)
-get_domain_repository = make_repo_dep(DomainRepository)
-get_inbound_repository = make_repo_dep(InboundRepository)
-get_subscription_repository = make_repo_dep(SubscriptionRepository)
-
-UserRepositoryDep = Annotated[UserRepository, Depends(get_user_repository)]
-ClientRepositoryDep = Annotated[ClientRepository, Depends(get_client_repository)]
+# --- Repository Annotated types ---
+UserRepositoryDep = Annotated[UserRepository, Depends(make_repo_dep(UserRepository))]
+ClientRepositoryDep = Annotated[
+    ClientRepository, Depends(make_repo_dep(ClientRepository))
+]
 CredentialRepositoryDep = Annotated[
-    ClientCredentialRepository, Depends(get_credential_repository)
+    ClientCredentialRepository, Depends(make_repo_dep(ClientCredentialRepository))
 ]
-DomainRepositoryDep = Annotated[DomainRepository, Depends(get_domain_repository)]
-InboundRepositoryDep = Annotated[InboundRepository, Depends(get_inbound_repository)]
+DomainRepositoryDep = Annotated[
+    DomainRepository, Depends(make_repo_dep(DomainRepository))
+]
+InboundRepositoryDep = Annotated[
+    InboundRepository, Depends(make_repo_dep(InboundRepository))
+]
 SubscriptionRepositoryDep = Annotated[
-    SubscriptionRepository, Depends(get_subscription_repository)
+    SubscriptionRepository, Depends(make_repo_dep(SubscriptionRepository))
 ]
 
 
+# --- Config manager ---
+def get_config_manager(session: DbSession) -> ConfigManager:
+    return ConfigManager(session)
+
+
+ConfigManagerDep = Annotated[ConfigManager, Depends(get_config_manager)]
+
+
+# --- Service providers ---
 def get_auth_service(repo: UserRepositoryDep) -> AuthService:
     return AuthService(repo)
 
@@ -63,16 +73,20 @@ def get_auth_service(repo: UserRepositoryDep) -> AuthService:
 def get_client_service(
     repo: ClientRepositoryDep,
     credential_repo: CredentialRepositoryDep,
+    config_manager: ConfigManagerDep,
 ) -> ClientService:
-    return ClientService(repo, credential_repo)
+    return ClientService(repo, credential_repo, config_manager)
 
 
 def get_domain_service(repo: DomainRepositoryDep) -> DomainService:
     return DomainService(repo)
 
 
-def get_inbound_service(repo: InboundRepositoryDep) -> InboundService:
-    return InboundService(repo)
+def get_inbound_service(
+    repo: InboundRepositoryDep,
+    config_manager: ConfigManagerDep,
+) -> InboundService:
+    return InboundService(repo, config_manager)
 
 
 def get_subscription_service(
@@ -82,6 +96,7 @@ def get_subscription_service(
     return SubscriptionService(repo, inbound_repo)
 
 
+# --- Service Annotated types ---
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 ClientServiceDep = Annotated[ClientService, Depends(get_client_service)]
 DomainServiceDep = Annotated[DomainService, Depends(get_domain_service)]
@@ -91,6 +106,7 @@ SubscriptionServiceDep = Annotated[
 ]
 
 
+# --- Current user ---
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     auth_service: AuthServiceDep,
@@ -101,4 +117,4 @@ async def get_current_user(
     return user
 
 
-CurrentUser = Annotated[UserRead, Depends(get_current_user)]
+CurrentUserDep = Annotated[UserRead, Depends(get_current_user)]

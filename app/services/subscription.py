@@ -4,7 +4,6 @@ from app.repositories.inbound import InboundRepository
 from app.repositories.subscription import SubscriptionRepository
 from app.schemas.subscription import (
     SubscriptionCreate,
-    SubscriptionRead,
     SubscriptionReadDetail,
     SubscriptionUpdate,
 )
@@ -30,10 +29,10 @@ class SubscriptionService:
         if not inbound:
             raise NotFoundError(f"Инбаунд {inbound_id} не найден")
 
-    async def get_all(self) -> list[SubscriptionRead]:
+    async def get_all(self) -> list[SubscriptionReadDetail]:
         """Получить все подписки"""
-        subs = await self.repo.get_all()
-        return [SubscriptionRead.model_validate(s) for s in subs]
+        subs = await self.repo.get_all_with_inbounds()
+        return [SubscriptionReadDetail.model_validate(s) for s in subs]
 
     async def get_by_id(self, id: int) -> SubscriptionReadDetail:
         """Получить подписку по id"""
