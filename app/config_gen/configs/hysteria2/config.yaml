@@ -1,1 +1,17 @@
-# No active Hysteria2 inbounds
+listen: :443
+tls:
+  cert: /etc/hysteria2/certs/server.crt
+  key: /etc/hysteria2/certs/server.key
+auth:
+  type: userpass
+  userpass:
+    new: j7jq6MYaI325C5a8HYUkFQ
+    kirill: 3Lj7VdIT4WGZ-9Ns680KuA
+masquerade:
+  type: proxy
+  proxy:
+    url: https://localhost
+    rewriteHost: true
+bandwidth:
+  up: 1 gbps
+  down: 1 gbps

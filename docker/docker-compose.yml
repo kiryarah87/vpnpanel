@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../app/config_gen/configs/xray:/etc/xray
-      - caddy_certs:/etc/xray/certs:ro
+      - ../app/config_gen/configs/certs:/etc/xray/certs:ro
     network_mode: host
 
   hysteria2:
@@ -34,7 +34,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../app/config_gen/configs/hysteria2:/etc/hysteria2
-      - caddy_certs:/etc/hysteria2/certs:ro
+      - ../app/config_gen/configs/certs:/etc/hysteria2/certs:ro
     network_mode: host
 
   caddy:
@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../app/config_gen/configs/caddy:/etc/caddy
-      - caddy_certs:/certs
+      - ../app/config_gen/configs/certs:/certs
     network_mode: host
 
 volumes:

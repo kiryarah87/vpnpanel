@@ -1,7 +1,7 @@
 import random
 
 from app.config_gen.manager import ConfigManager
-from app.core.exception import NotFoundError
+from app.core.exception import NotFoundError, ValidationError
 from app.models.enum import PortType, ProtocolType
 from app.repositories.inbound import InboundRepository
 from app.schemas.inbound import InboundCreate, InboundRead, InboundUpdate
@@ -62,6 +62,11 @@ class InboundService:
 
         if not inbound:
             raise NotFoundError("Инбаунд не найден")
+
+        subs = await self.repo.get_subscriptions_by_inbound(id)
+        if subs:
+            names = ", ".join(s.name for s in subs)
+            raise ValidationError(f"Инбаунд используется в подписках: {names}. Сначала удалите его из подписок.")
 
         await self.repo.delete(inbound)
         await self.config_manager.regenerate_xray()

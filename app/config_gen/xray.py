@@ -73,8 +73,8 @@ class XrayConfigGenerator(BaseConfigGenerator):
                     "dest": f"{inbound.sni}:443",
                     "xver": 0,
                     "serverNames": [inbound.sni],
-                    "privateKey": "",  # TODO: генерировать при создании инбаунда
-                    "shortIds": [""],
+                    "privateKey": inbound.reality_private_key or "",
+                    "shortIds": [inbound.reality_short_id or ""],
                 },
             },
         }
@@ -97,8 +97,8 @@ class XrayConfigGenerator(BaseConfigGenerator):
                     "dest": f"{inbound.sni}:443",
                     "xver": 0,
                     "serverNames": [inbound.sni],
-                    "privateKey": "",  # TODO: генерировать при создании инбаунда
-                    "shortIds": [""],
+                    "privateKey": inbound.reality_private_key or "",
+                    "shortIds": [inbound.reality_short_id or ""],
                 },
                 "xhttpSettings": {
                     "path": "/",

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import router
+from app.api.v1.subscription import public_router
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.utils.init_db import create_admin_if_not_exists, create_default_configs
@@ -26,6 +27,8 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(router)
+    app.include_router(public_router)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173"],

@@ -58,17 +58,21 @@ export function Inbounds() {
 
   const handleSave = async () => {
     try {
+      const portValue = form.port ? Number(form.port) : undefined
+      const portType = form.port ? 'fixed' : 'random'
+
       if (editInbound) {
-        await updateInbound(editInbound.id, { ...form, port: Number(form.port) })
+        await updateInbound(editInbound.id, { ...form, port: portValue, port_type: portType })
         toast.success('Inbound updated')
       } else {
-        await createInbound({ ...form, port: Number(form.port), port_type: 'fixed' })
+        await createInbound({ ...form, port: portValue, port_type: portType })
         toast.success('Inbound created')
       }
       setDialogOpen(false)
       load()
-    } catch {
-      toast.error('Something went wrong')
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail
+      toast.error(detail || 'Something went wrong')
     }
   }
 
@@ -77,8 +81,9 @@ export function Inbounds() {
       await deleteInbound(id)
       toast.success('Inbound deleted')
       load()
-    } catch {
-      toast.error('Something went wrong')
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail
+      toast.error(detail || 'Something went wrong')
     }
   }
 

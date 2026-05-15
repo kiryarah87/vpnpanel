@@ -18,6 +18,7 @@ class Inbound(Base, TimestampMixin):
     __tablename__ = "inbounds"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    tag: Mapped[str | None] = mapped_column(String(64), nullable=True)
     protocol: Mapped[ProtocolType] = mapped_column(SAEnum(ProtocolType), nullable=False)
     port: Mapped[int | None] = mapped_column(Integer, nullable=True)
     port_type: Mapped[PortType] = mapped_column(
