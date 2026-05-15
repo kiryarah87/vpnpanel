@@ -22,11 +22,6 @@ class CaddyConfigGenerator(BaseConfigGenerator):
         clients = await self.client_repo.get_all_with_credentials()
 
         naive_inbounds = [i for i in inbounds if i.protocol == ProtocolType.NAIVEPROXY]
-
-        if not naive_inbounds:
-            self.write("# No active NaiveProxy inbounds\n")
-            return
-
         active_clients = [c for c in clients if c.credential and c.is_active]
 
         lines = []
@@ -50,5 +45,14 @@ class CaddyConfigGenerator(BaseConfigGenerator):
             lines.append("  }")
             lines.append("}")
             lines.append("")
+
+        lines.append(":80 {")
+        lines.append("    root * /srv/frontend")
+        lines.append("    file_server")
+        lines.append("    try_files {path} /index.html")
+        lines.append("")
+        lines.append("    reverse_proxy /api/* localhost:8000")
+        lines.append("    reverse_proxy /sub/* localhost:8000")
+        lines.append("}")
 
         self.write("\n".join(lines))

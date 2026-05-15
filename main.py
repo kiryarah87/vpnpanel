@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import router
 from app.api.v1.subscription import public_router
+from app.config_gen.manager import ConfigManager
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.utils.init_db import create_admin_if_not_exists, create_default_configs
@@ -16,6 +17,8 @@ async def lifespan(app: FastAPI):
     async with AsyncSessionLocal() as session:
         async with session.begin():
             await create_admin_if_not_exists(session)
+            manager = ConfigManager(session)
+            await manager.regenerate_all()
     yield
 
 
@@ -31,7 +34,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=["http://localhost"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

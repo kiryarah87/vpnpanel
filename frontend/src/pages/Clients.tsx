@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { Plus, Trash2, Pencil } from 'lucide-react'
+import { Plus, Trash2, Pencil, Eye, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -20,14 +20,16 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { getClients, createClient, updateClient, deleteClient } from '@/api/clients'
-import type { Client } from '@/types'
+import { getClients, createClient, updateClient, deleteClient, getClientCredentials } from '@/api/clients'
+import type { Client, ClientCredentials } from '@/types'
 
 export function Clients() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [credDialogOpen, setCredDialogOpen] = useState(false)
   const [editClient, setEditClient] = useState<Client | null>(null)
+  const [credentials, setCredentials] = useState<ClientCredentials | null>(null)
   const [name, setName] = useState('')
 
   const load = async () => {
@@ -51,6 +53,16 @@ export function Clients() {
     setEditClient(client)
     setName(client.name)
     setDialogOpen(true)
+  }
+
+  const openCredentials = async (client: Client) => {
+    try {
+      const creds = await getClientCredentials(client.id)
+      setCredentials(creds)
+      setCredDialogOpen(true)
+    } catch {
+      toast.error('Failed to load credentials')
+    }
   }
 
   const handleSave = async () => {
@@ -86,6 +98,11 @@ export function Clients() {
     } catch {
       toast.error('Something went wrong')
     }
+  }
+
+  const copyToClipboard = (value: string, label: string) => {
+    navigator.clipboard.writeText(value)
+    toast.success(`${label} copied!`)
   }
 
   return (
@@ -136,6 +153,9 @@ export function Clients() {
                   </TableCell>
                   <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right space-x-2">
+                    <Button variant="ghost" size="icon" onClick={() => openCredentials(client)}>
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(client)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
@@ -150,6 +170,7 @@ export function Clients() {
         </Table>
       </div>
 
+      {/* Edit/Create Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -169,6 +190,62 @@ export function Clients() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Credentials Dialog */}
+      <Dialog open={credDialogOpen} onOpenChange={setCredDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Client Credentials</DialogTitle>
+          </DialogHeader>
+          {credentials && (
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label>VLESS UUID (Xray)</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={credentials.xray_uuid} readOnly className="font-mono text-xs" />
+                  <Button variant="ghost" size="icon" onClick={() => copyToClipboard(credentials.xray_uuid, 'UUID')}>
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Hysteria2 Password</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={credentials.hysteria2_password} readOnly className="font-mono text-xs" />
+                  <Button variant="ghost" size="icon" onClick={() => copyToClipboard(credentials.hysteria2_password, 'Password')}>
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+              {credentials.naiveproxy_username && (
+                <div className="space-y-2">
+                  <Label>NaiveProxy Username</Label>
+                  <div className="flex items-center gap-2">
+                    <Input value={credentials.naiveproxy_username} readOnly className="font-mono text-xs" />
+                    <Button variant="ghost" size="icon" onClick={() => copyToClipboard(credentials.naiveproxy_username!, 'Username')}>
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {credentials.naiveproxy_password && (
+                <div className="space-y-2">
+                  <Label>NaiveProxy Password</Label>
+                  <div className="flex items-center gap-2">
+                    <Input value={credentials.naiveproxy_password} readOnly className="font-mono text-xs" />
+                    <Button variant="ghost" size="icon" onClick={() => copyToClipboard(credentials.naiveproxy_password!, 'Password')}>
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setCredDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

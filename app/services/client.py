@@ -3,6 +3,7 @@ from app.core.exception import NotFoundError
 from app.repositories.client import ClientRepository
 from app.repositories.credential import ClientCredentialRepository
 from app.schemas.client import ClientCreate, ClientReadDetail, ClientUpdate
+from app.schemas.credential import ClientCredentialRead
 
 
 class ClientService:
@@ -26,6 +27,17 @@ class ClientService:
         if not client:
             raise NotFoundError("Клиент не найден")
         return ClientReadDetail.model_validate(client)
+
+    async def get_credentials(self, id: int) -> ClientCredentialRead:
+        client = await self.repo.get_with_credential(id)
+
+        if not client:
+            raise NotFoundError("Клиент не найден")
+
+        if not client.credential:
+            raise NotFoundError("Credentials не найдены")
+
+        return ClientCredentialRead.model_validate(client.credential)
 
     async def create(self, data: ClientCreate) -> ClientReadDetail:
         client = await self.repo.create_from_dict(data.model_dump())

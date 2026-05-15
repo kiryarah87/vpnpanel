@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from jose import jwt
+from jose import JWTError, jwt
 
 from app.core.config import settings
+from app.core.exception import UnauthorizedError
 
 
 def hash_password(password: str) -> str:
@@ -21,10 +22,11 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 
-def decode_access_token(token: str) -> dict | None:
+def decode_access_token(token: str) -> dict:
     try:
-        return jwt.decode(
+        payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
-    except jwt.PyJWTError:
-        return None
+        return payload
+    except JWTError:
+        raise UnauthorizedError("Невалидный токен")

@@ -19,3 +19,8 @@ export const updateClient = async (id: number, data: Partial<Client>): Promise<C
 export const deleteClient = async (id: number): Promise<void> => {
   await api.delete(`/api/v1/clients/${id}`)
 }
+
+export const getClientCredentials = async (clientId: number) => {
+  const response = await api.get(`/api/v1/clients/${clientId}/credentials`)
+  return response.data
+}
