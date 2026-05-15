@@ -38,7 +38,9 @@ services:
     network_mode: host
 
   caddy:
-    build: ./caddy
+    build:
+      context: ..
+      dockerfile: docker/caddy/Dockerfile
     container_name: caddy
     restart: unless-stopped
     volumes:

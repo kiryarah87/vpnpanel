@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.core.deps import ClientServiceDep, get_current_user
 from app.schemas.client import ClientCreate, ClientReadDetail, ClientUpdate
+from app.schemas.credential import ClientCredentialRead
 
 router = APIRouter(
     prefix="/clients",
@@ -37,3 +38,8 @@ async def update_client(
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_client(id: int, service: ClientServiceDep) -> None:
     await service.delete(id)
+
+
+@router.get("/{id}/credentials", response_model=ClientCredentialRead)
+async def get_client_credentials(id: int, service: ClientServiceDep) -> ClientCredentialRead:
+    return await service.get_credentials(id)

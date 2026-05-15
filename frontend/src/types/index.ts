@@ -59,3 +59,12 @@ export interface Subscription {
   created_at: string
   updated_at: string
 }
+
+export interface ClientCredentials {
+  id: number
+  client_id: number
+  xray_uuid: string
+  hysteria2_password: string
+  naiveproxy_username: string | null
+  naiveproxy_password: string | null
+}
