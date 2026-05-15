@@ -1,5 +1,7 @@
+from app.config_gen.links import LinkGenerator
 from app.core.config import settings
 from app.core.exception import ForbiddenError, NotFoundError, ValidationError
+from app.repositories.credential import ClientCredentialRepository
 from app.repositories.inbound import InboundRepository
 from app.repositories.subscription import SubscriptionRepository
 from app.schemas.subscription import (
@@ -10,11 +12,15 @@ from app.schemas.subscription import (
 
 
 class SubscriptionService:
-    """Сервис для управления подписками"""
-
-    def __init__(self, repo: SubscriptionRepository, inbound_repo: InboundRepository):
+    def __init__(
+        self,
+        repo: SubscriptionRepository,
+        inbound_repo: InboundRepository,
+        credential_repo: ClientCredentialRepository,
+    ):
         self.repo = repo
         self.inbound_repo = inbound_repo
+        self.credential_repo = credential_repo
 
     def _validate_inbounds_limit(self, inbound_ids: list[int]) -> None:
         """Проверить, что количество инбаундов не превышает лимит"""
@@ -101,3 +107,21 @@ class SubscriptionService:
     def get_subscription_url(self, token: str) -> str:
         """Получить URL для подписки по токену"""
         return f"{settings.SUBSCRIPTION_BASE_URL}/sub/{token}"
+
+    async def get_links(self, token: str, host: str) -> str:
+        sub = await self.repo.get_by_token(token)
+
+        if not sub:
+            raise NotFoundError("Подписка не найдена")
+
+        if not sub.is_active:
+            raise ForbiddenError("Подписка деактивирована")
+
+        credential = await self.credential_repo.get_by_client(sub.client_id)
+
+        if not credential:
+            raise NotFoundError("Credentials не найдены")
+
+        inbounds = [si.inbound for si in sub.subscription_inbounds]
+        generator = LinkGenerator()
+        return generator.generate(inbounds, credential, host)

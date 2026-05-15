@@ -37,6 +37,7 @@ class InboundRead(BaseModel):
     model_config = {"from_attributes": True}
 
     id: int
+    tag: str | None
     protocol: ProtocolType
     port: int | None
     port_type: PortType

@@ -1,17 +1,20 @@
+import { useTheme } from 'next-themes'
+import { Moon, Sun, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store'
 import { useNavigate } from 'react-router-dom'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { LogOut } from 'lucide-react'
 
 export function Header() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const { theme, setTheme } = useTheme()
 
   const handleLogout = () => {
     logout()
@@ -19,7 +22,14 @@ export function Header() {
   }
 
   return (
-    <header className="h-16 border-b flex items-center justify-end px-6">
+    <header className="h-16 border-b flex items-center justify-end px-6 gap-2">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      >
+        {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger className="outline-none">
           <Avatar className="h-8 w-8 cursor-pointer">

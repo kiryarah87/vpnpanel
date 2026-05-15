@@ -4,14 +4,18 @@
   },
   "inbounds": [
     {
-      "tag": "vless-tcp-reality-2",
+      "tag": "vless-tcp-reality-1",
       "listen": "0.0.0.0",
-      "port": 10200,
+      "port": 36965,
       "protocol": "vless",
       "settings": {
         "clients": [
           {
-            "id": "588827ca-563b-4ae0-9b54-190f892ae92f",
+            "id": "139bee2c-8e4d-4abe-a6d7-7ea87b7e3eae",
+            "flow": "xtls-rprx-vision"
+          },
+          {
+            "id": "ac1fb484-ef09-4c2e-8e29-a754ffe9791c",
             "flow": "xtls-rprx-vision"
           }
         ],
@@ -22,14 +26,14 @@
         "security": "reality",
         "realitySettings": {
           "show": false,
-          "dest": "max.ru:443",
+          "dest": "ya.ru:443",
           "xver": 0,
           "serverNames": [
-            "max.ru"
+            "ya.ru"
           ],
-          "privateKey": "",
+          "privateKey": "iHmDQ8hXTfE50-5unUBgaa_upRjEF9XpYEEXONOuOmc",
           "shortIds": [
-            ""
+            "36c5c5c5c32998cf"
           ]
         }
       }

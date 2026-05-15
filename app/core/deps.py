@@ -92,8 +92,9 @@ def get_inbound_service(
 def get_subscription_service(
     repo: SubscriptionRepositoryDep,
     inbound_repo: InboundRepositoryDep,
+    credential_repo: CredentialRepositoryDep,
 ) -> SubscriptionService:
-    return SubscriptionService(repo, inbound_repo)
+    return SubscriptionService(repo, inbound_repo, credential_repo)
 
 
 # --- Service Annotated types ---

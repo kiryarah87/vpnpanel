@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import PlainTextResponse
 
 from app.core.deps import SubscriptionServiceDep, get_current_user
 from app.schemas.subscription import (
@@ -54,11 +55,16 @@ async def delete_subscription(id: int, service: SubscriptionServiceDep) -> None:
     await service.delete(id)
 
 
-@public_router.get(
-    "/sub/{token}", response_model=SubscriptionReadDetail, include_in_schema=False
-)
+@public_router.get("/sub/{token}", include_in_schema=False)
 async def get_subscription_by_token(
     token: str,
+    request: Request,
     service: SubscriptionServiceDep,
-) -> SubscriptionReadDetail:
-    return await service.get_by_token(token)
+) -> PlainTextResponse:
+    host = (
+        request.headers.get("x-real-ip")
+        or request.headers.get("x-forwarded-for")
+        or request.client.host
+    )
+    content = await service.get_links(token, host)
+    return PlainTextResponse(content=content)
