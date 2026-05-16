@@ -179,8 +179,32 @@ JWT_EXPIRE_MINUTES=1440
 ADMIN_USERNAME=${ADMIN_USERNAME}
 ADMIN_PASSWORD=${ADMIN_PASSWORD}
 
+DOCKER_SOCKET=unix:///var/run/docker.sock
+VPN_NETWORK=vpnpanel_network
+MAX_INBOUNDS_PER_SUBSCRIPTION=10
+
 DOMAIN=${DOMAIN}
 SUBSCRIPTION_BASE_URL="https://${DOMAIN}"
+EOF
+
+# Предгенерируем Caddyfile для VPS
+mkdir -p app/config_gen/configs/caddy
+cat > app/config_gen/configs/caddy/Caddyfile <<EOF
+${DOMAIN} {
+    reverse_proxy /sub/* localhost:8000
+
+    root * /srv/decoy
+    file_server
+}
+
+http://localhost:${PANEL_PORT} {
+    root * /srv/frontend
+
+    reverse_proxy /api/* localhost:8000
+
+    try_files {path} /index.html
+    file_server
+}
 EOF
 
 cat > frontend/.env <<EOF
@@ -188,6 +212,9 @@ VITE_API_URL=
 EOF
 
 echo -e "${GREEN}.env создан!${NC}"
+
+# Создать файл БД чтобы Docker не создал директорию
+touch vpnpanel.db
 
 # Установка Docker
 if ! command -v docker &> /dev/null; then
@@ -202,6 +229,10 @@ fi
 echo ""
 echo -e "${YELLOW}Сборка и запуск контейнеров...${NC}"
 docker compose -f docker/docker-compose.yml up -d --build
+
+echo -e "${YELLOW}Ожидание запуска...${NC}"
+sleep 5
+docker logs vpnpanel --tail 10
 
 echo ""
 echo -e "${GREEN}=============================="
