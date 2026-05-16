@@ -5,4 +5,7 @@ __pycache__
 .git
 .env
 vpnpanel.db
-configs/
+app/config_gen/configs/caddy/Caddyfile
+app/config_gen/configs/xray/config.json
+app/config_gen/configs/hysteria2/config.yaml
+app/config_gen/configs/certs/

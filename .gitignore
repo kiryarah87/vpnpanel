@@ -23,6 +23,7 @@ dist/
 # Docker volumes
 docker/data/
 
+app/config_gen/configs/certs/
 app/config_gen/configs/caddy/Caddyfile
 app/config_gen/configs/xray/config.json
 app/config_gen/configs/hysteria2/config.yaml

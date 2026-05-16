@@ -188,7 +188,6 @@ SUBSCRIPTION_BASE_URL="https://${DOMAIN}"
 EOF
 
 # Предгенерируем Caddyfile для VPS
-# Предгенерируем Caddyfile для VPS
 mkdir -p app/config_gen/configs/caddy
 mkdir -p app/config_gen/configs/certs
 mkdir -p app/config_gen/configs/xray
