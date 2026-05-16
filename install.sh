@@ -149,7 +149,18 @@ while true; do
     echo -e "${RED}Пароли не совпадают!${NC}"
 done
 
-# Панель слушает только localhost
+# Клонирование репозитория
+INSTALL_DIR="/opt/vpnpanel"
+echo ""
+echo -e "${YELLOW}Клонирование репозитория в ${INSTALL_DIR}...${NC}"
+if [ -d "$INSTALL_DIR" ]; then
+    echo -e "${YELLOW}Директория уже существует, обновляем...${NC}"
+    git -C "$INSTALL_DIR" pull
+else
+    git clone https://github.com/kiryarah87/vpnpanel.git "$INSTALL_DIR"
+fi
+cd "$INSTALL_DIR"
+
 PANEL_PORT=8080
 SECRET_KEY=$(openssl rand -hex 32)
 
@@ -172,7 +183,7 @@ DOMAIN=${DOMAIN}
 SUBSCRIPTION_BASE_URL="https://${DOMAIN}"
 EOF
 
-cat > frontend/.env <<'EOF'
+cat > frontend/.env <<EOF
 VITE_API_URL=
 EOF
 
@@ -205,3 +216,5 @@ echo -e "  Затем откройте: ${GREEN}http://localhost:8080${NC}"
 echo ""
 echo -e "Логин: ${GREEN}${ADMIN_USERNAME}${NC}"
 echo -e "Пароль: ${GREEN}${ADMIN_PASSWORD}${NC}"
+echo ""
+echo -e "${YELLOW}Caddy автоматически получит SSL сертификат. Это может занять минуту.${NC}"
