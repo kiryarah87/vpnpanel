@@ -1,8 +1,0 @@
-:80 {
-    root * /srv/frontend
-    file_server
-    try_files {path} /index.html
-
-    reverse_proxy /api/* localhost:8000
-    reverse_proxy /sub/* localhost:8000
-}

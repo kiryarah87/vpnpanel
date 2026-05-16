@@ -10,3 +10,5 @@ COPY --from=frontend_builder /app/dist /srv/frontend
 COPY app/config_gen/configs/caddy/decoy /srv/decoy
 COPY docker/caddy/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
