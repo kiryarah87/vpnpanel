@@ -6,7 +6,7 @@ services:
     container_name: vpnpanel
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ../app/config_gen/configs:/app/app/config_gen/configs
       - ../vpnpanel.db:/app/vpnpanel.db
@@ -25,7 +25,6 @@ services:
     restart: unless-stopped
     volumes:
       - ../app/config_gen/configs/xray:/etc/xray
-      - ../app/config_gen/configs/certs:/etc/xray/certs:ro
     network_mode: host
 
   hysteria2:
@@ -34,7 +33,6 @@ services:
     restart: unless-stopped
     volumes:
       - ../app/config_gen/configs/hysteria2:/etc/hysteria2
-      - ../app/config_gen/configs/certs:/etc/hysteria2/certs:ro
     network_mode: host
 
   caddy:
