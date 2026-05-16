@@ -1,16 +1,1 @@
-listen: :443
-tls:
-  cert: /etc/hysteria2/certs/server.crt
-  key: /etc/hysteria2/certs/server.key
-auth:
-  type: userpass
-  userpass:
-    kirill: 3Lj7VdIT4WGZ-9Ns680KuA
-masquerade:
-  type: proxy
-  proxy:
-    url: https://localhost
-    rewriteHost: true
-bandwidth:
-  up: 1 gbps
-  down: 1 gbps
+# No active Hysteria2 inbounds
