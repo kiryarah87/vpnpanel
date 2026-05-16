@@ -31,11 +31,24 @@ class XrayConfigGenerator(BaseConfigGenerator):
 
         config = {
             "log": {"loglevel": "warning"},
-            "inbounds": xray_inbounds,
+            "inbounds": [
+                {
+                    "listen": "127.0.0.1",
+                    "port": 10085,
+                    "protocol": "dokodemo-door",
+                    "settings": {"address": "127.0.0.1"},
+                    "tag": "api",
+                },
+                *xray_inbounds,
+            ],
             "outbounds": [
                 {"protocol": "freedom", "tag": "direct"},
                 {"protocol": "blackhole", "tag": "block"},
             ],
+            "api": {
+                "tag": "api",
+                "services": ["HandlerService", "StatsService", "LoggerService"],
+            },
             "routing": {
                 "rules": [
                     {"type": "field", "ip": ["geoip:private"], "outboundTag": "block"}

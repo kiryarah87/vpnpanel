@@ -51,12 +51,13 @@ class CaddyConfigGenerator(BaseConfigGenerator):
             lines.append("")
 
             # 2. Панель — только localhost (SSH tunnel)
-            lines.append(f"localhost:{settings.PORT} {{")
+            lines.append(f"http://localhost:{settings.PORT} {{")
             lines.append("    root * /srv/frontend")
-            lines.append("    file_server")
-            lines.append("    try_files {path} /index.html")
             lines.append("")
             lines.append("    reverse_proxy /api/* localhost:8000")
+            lines.append("")
+            lines.append("    try_files {path} /index.html")
+            lines.append("    file_server")
             lines.append("}")
             lines.append("")
 
