@@ -11,6 +11,7 @@ class InboundCreate(BaseModel):
     protocol: ProtocolType
     port: int | None = None
     port_type: PortType = PortType.RANDOM
+    tag: str | None = None
     sni: str | None = None
     domain_id: int | None = None
 
@@ -28,6 +29,7 @@ class InboundUpdate(BaseModel):
     protocol: ProtocolType | None = None
     port: int | None = None
     port_type: PortType | None = None
+    tag: str | None = None
     sni: str | None = None
     domain_id: int | None = None
     is_active: bool | None = None

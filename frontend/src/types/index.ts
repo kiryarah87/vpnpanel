@@ -45,6 +45,7 @@ export interface Credential {
 export interface Domain {
   id: number
   name: string
+  is_active: boolean
   created_at: string
   updated_at: string
 }

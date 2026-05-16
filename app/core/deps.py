@@ -73,9 +73,10 @@ def get_auth_service(repo: UserRepositoryDep) -> AuthService:
 def get_client_service(
     repo: ClientRepositoryDep,
     credential_repo: CredentialRepositoryDep,
+    subscription_repo: SubscriptionRepositoryDep,
     config_manager: ConfigManagerDep,
 ) -> ClientService:
-    return ClientService(repo, credential_repo, config_manager)
+    return ClientService(repo, credential_repo, subscription_repo, config_manager)
 
 
 def get_domain_service(repo: DomainRepositoryDep) -> DomainService:
