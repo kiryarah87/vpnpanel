@@ -24,35 +24,58 @@ class CaddyConfigGenerator(BaseConfigGenerator):
         naive_inbounds = [i for i in inbounds if i.protocol == ProtocolType.NAIVEPROXY]
         active_clients = [c for c in clients if c.credential and c.is_active]
 
+        is_local = settings.DOMAIN in ("localhost", "127.0.0.1")
         lines = []
 
-        for inbound in naive_inbounds:
-            users = " ".join(
-                f"{c.credential.naiveproxy_username}:{c.credential.naiveproxy_password}"
-                for c in active_clients
-            )
-
-            lines.append(f"{settings.DOMAIN}:{inbound.port} {{")
-            lines.append("  tls {")
-            lines.append("    on_demand")
-            lines.append("  }")
-            lines.append("  route {")
-            lines.append("    forward_proxy {")
-            lines.append(f"      basic_auth {users}")
-            lines.append("      hide_ip")
-            lines.append("      hide_via")
-            lines.append("    }")
-            lines.append("  }")
+        if is_local:
+            # Локально — всё на HTTP
+            lines.append(":80 {")
+            lines.append("    root * /srv/frontend")
+            lines.append("    file_server")
+            lines.append("    try_files {path} /index.html")
+            lines.append("")
+            lines.append("    reverse_proxy /api/* localhost:8000")
+            lines.append("    reverse_proxy /sub/* localhost:8000")
+            lines.append("}")
+        else:
+            # На VPS:
+            # 1. Публичный домен — заглушка + подписки
+            lines.append(f"{settings.DOMAIN} {{")
+            lines.append("    # Подписки публично доступны")
+            lines.append("    reverse_proxy /sub/* localhost:8000")
+            lines.append("")
+            lines.append("    # Всё остальное — заглушка")
+            lines.append("    root * /srv/decoy")
+            lines.append("    file_server")
             lines.append("}")
             lines.append("")
 
-        lines.append(":80 {")
-        lines.append("    root * /srv/frontend")
-        lines.append("    file_server")
-        lines.append("    try_files {path} /index.html")
-        lines.append("")
-        lines.append("    reverse_proxy /api/* localhost:8000")
-        lines.append("    reverse_proxy /sub/* localhost:8000")
-        lines.append("}")
+            # 2. Панель — только localhost (SSH tunnel)
+            lines.append(f"localhost:{settings.PORT} {{")
+            lines.append("    root * /srv/frontend")
+            lines.append("    file_server")
+            lines.append("    try_files {path} /index.html")
+            lines.append("")
+            lines.append("    reverse_proxy /api/* localhost:8000")
+            lines.append("}")
+            lines.append("")
+
+            # 3. NaiveProxy инбаунды
+            for inbound in naive_inbounds:
+                users = " ".join(
+                    f"{c.credential.naiveproxy_username}:{c.credential.naiveproxy_password}"
+                    for c in active_clients
+                )
+                lines.append(f"{settings.DOMAIN}:{inbound.port} {{")
+                lines.append("    route {")
+                lines.append("        forward_proxy {")
+                if users:
+                    lines.append(f"            basic_auth {users}")
+                lines.append("            hide_ip")
+                lines.append("            hide_via")
+                lines.append("        }")
+                lines.append("    }")
+                lines.append("}")
+                lines.append("")
 
         self.write("\n".join(lines))

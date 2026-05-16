@@ -5,7 +5,6 @@ tls:
 auth:
   type: userpass
   userpass:
-    new: j7jq6MYaI325C5a8HYUkFQ
     kirill: 3Lj7VdIT4WGZ-9Ns680KuA
 masquerade:
   type: proxy

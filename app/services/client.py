@@ -2,6 +2,7 @@ from app.config_gen.manager import ConfigManager
 from app.core.exception import NotFoundError
 from app.repositories.client import ClientRepository
 from app.repositories.credential import ClientCredentialRepository
+from app.repositories.subscription import SubscriptionRepository
 from app.schemas.client import ClientCreate, ClientReadDetail, ClientUpdate
 from app.schemas.credential import ClientCredentialRead
 
@@ -11,10 +12,12 @@ class ClientService:
         self,
         repo: ClientRepository,
         credential_repo: ClientCredentialRepository,
+        subscription_repo: SubscriptionRepository,
         config_manager: ConfigManager,
     ):
         self.repo = repo
         self.credential_repo = credential_repo
+        self.subscription_repo = subscription_repo
         self.config_manager = config_manager
 
     async def get_all(self) -> list[ClientReadDetail]:
@@ -57,10 +60,15 @@ class ClientService:
         if not client:
             raise NotFoundError("Клиент не найден")
 
-        client = await self.repo.update_from_dict(
-            client, data.model_dump(exclude_unset=True)
-        )
+        update_data = data.model_dump(exclude_unset=True)
 
+        if "is_active" in update_data:
+            if update_data["is_active"]:
+                await self.subscription_repo.activate_by_client(id)
+            else:
+                await self.subscription_repo.deactivate_by_client(id)
+
+        client = await self.repo.update_from_dict(client, update_data)
         await self.config_manager.regenerate_all()
         return ClientReadDetail.model_validate(client)
 

@@ -42,10 +42,17 @@ class LinkGenerator:
                 if link:
                     links.append(link)
 
+            elif inbound.protocol == ProtocolType.NAIVEPROXY:
+                link = self._naiveproxy_link(inbound, credential, server_host)
+                if link:
+                    links.append(link)
+
         content = "\n".join(links)
         return base64.b64encode(content.encode()).decode()
 
-    def _vless_reality_link(self, inbound, uuid: str, host: str, network: str) -> str | None:
+    def _vless_reality_link(
+        self, inbound, uuid: str, host: str, network: str
+    ) -> str | None:
         if not inbound.reality_public_key:
             return None
 
@@ -67,4 +74,16 @@ class LinkGenerator:
 
     def _hysteria2_link(self, inbound, password: str, host: str) -> str | None:
         tag = quote(str(inbound.tag or ""))
-        return f"hysteria2://{password}@{host}:{inbound.port}#{tag}"
+        sni = inbound.sni or host
+        return (
+            f"hysteria2://{password}@{host}:{inbound.port}?sni={sni}&insecure=1#{tag}"
+        )
+
+    def _naiveproxy_link(self, inbound, credential, host: str) -> str | None:
+        if not credential.naiveproxy_username or not credential.naiveproxy_password:
+            return
+
+        tag = quote(str(inbound.tag or ""))
+        username = quote(credential.naiveproxy_username)
+        password = quote(credential.naiveproxy_password)
+        return f"naive+https://{username}:{password}@{host}:{inbound.port}#{tag}"

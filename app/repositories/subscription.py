@@ -1,6 +1,6 @@
 import secrets
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -105,3 +105,21 @@ class SubscriptionRepository(BaseRepository[Subscription]):
         if link:
             await self.session.delete(link)
             await self.session.flush()
+
+    async def deactivate_by_client(self, client_id: int) -> None:
+        """Деактивировать все подписки клиента"""
+        await self.session.execute(
+            update(Subscription)
+            .where(Subscription.client_id == client_id)
+            .values(is_active=False)
+        )
+        await self.session.flush()
+
+    async def activate_by_client(self, client_id: int) -> None:
+        """Активировать все подписки клиента"""
+        await self.session.execute(
+            update(Subscription)
+            .where(Subscription.client_id == client_id)
+            .values(is_active=True)
+        )
+        await self.session.flush()
