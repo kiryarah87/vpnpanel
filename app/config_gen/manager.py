@@ -48,12 +48,11 @@ class ConfigManager:
         await self._reload_caddy()
 
     async def _reload_container(self, name: str) -> None:
-        """Отправить SIGHUP контейнеру"""
         try:
             client = docker.from_env()
             container = client.containers.get(name)
-            container.kill(signal="SIGHUP")
-            logger.info(f"Sent SIGHUP to container '{name}'")
+            container.restart(timeout=5)
+            logger.info(f"Restarted container '{name}'")
         except DockerException as e:
             logger.warning(f"Failed to reload container '{name}': {e}")
 
