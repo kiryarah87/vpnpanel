@@ -41,8 +41,8 @@ class Hysteria2ConfigGenerator(BaseConfigGenerator):
         config = {
             "listen": f":{inbound.port}",
             "tls": {
-                "cert": "/etc/hysteria2/certs/server.crt",
-                "key": "/etc/hysteria2/certs/server.key",
+                "cert": f"/caddy-data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/{settings.DOMAIN}/{settings.DOMAIN}.crt",
+                "key": f"/caddy-data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/{settings.DOMAIN}/{settings.DOMAIN}.key",
             },
             "auth": {
                 "type": "userpass",

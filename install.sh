@@ -87,6 +87,7 @@ ufw --force reset
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow 22/tcp    comment 'SSH'
+ufw allow 80/tcp    comment 'HTTP / ACME challenge'
 ufw allow 443/tcp   comment 'HTTPS'
 ufw allow 443/udp   comment 'Hysteria2'
 ufw allow 10000:60000/tcp comment 'VPN TCP'

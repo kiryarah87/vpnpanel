@@ -4,6 +4,8 @@ __pycache__
 *.pyo
 .git
 .env
+.env.example
+.ruff_cache
 vpnpanel.db
 app/config_gen/configs/caddy/Caddyfile
 app/config_gen/configs/xray/config.json

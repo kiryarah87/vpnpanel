@@ -33,6 +33,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../app/config_gen/configs/hysteria2:/etc/hysteria2
+      - caddy_certs:/caddy-data:ro
     network_mode: host
 
   caddy:
@@ -44,6 +45,7 @@ services:
     volumes:
       - ../app/config_gen/configs/caddy:/etc/caddy
       - ../app/config_gen/configs/certs:/certs
+      - caddy_certs:/data
     network_mode: host
 
 volumes:
