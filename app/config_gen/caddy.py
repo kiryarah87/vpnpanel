@@ -27,6 +27,13 @@ class CaddyConfigGenerator(BaseConfigGenerator):
         is_local = settings.DOMAIN in ("localhost", "127.0.0.1")
         lines = []
 
+        lines.append("{")
+        lines.append("    servers {")
+        lines.append("        protocols h1 h2")
+        lines.append("    }")
+        lines.append("}")
+        lines.append("")
+
         if is_local:
             # Локально — всё на HTTP
             lines.append(":80 {")
